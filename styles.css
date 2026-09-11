@@ -85,10 +85,10 @@ h1 em, h2 em { color: var(--red); font-style: normal; }
 .diagram-node--light .diagram-node__sub { fill: #484743 !important; }
 .diagram-ring { fill: var(--bg); stroke: var(--red); stroke-width: 1; stroke-dasharray: 2 3; }
 .diagram-ring__text { fill: var(--red); font: 8px var(--mono); }
-.scribble { position: absolute; color: var(--muted); font: italic 14px cursive; }
-.scribble--one { left: 8%; top: 19%; transform: rotate(-8deg); }
-.scribble--two { right: 5%; top: 6%; color: var(--red); transform: rotate(8deg); }
-.scribble--three { left: 42%; bottom: 8%; transform: rotate(-13deg); }
+.scribble { position: absolute; color: var(--muted); font: italic 14px cursive; pointer-events: none; }
+.scribble--one { left: 4%; top: 4%; transform: rotate(-8deg); }
+.scribble--two { right: 4%; top: 6%; color: var(--red); transform: rotate(8deg); }
+.scribble--three { right: 8%; bottom: 10%; transform: rotate(-13deg); }
 .diagram__footer { border-top: 1px solid var(--line); }
 
 .ticker { overflow: hidden; border-block: 1px solid var(--line); background: rgba(244,242,236,.03); white-space: nowrap; }

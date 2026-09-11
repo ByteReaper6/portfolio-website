@@ -91,7 +91,13 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ─── Start Server ─────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`🚀  Server running at http://localhost:${PORT}`);
-});
+// ─── Start Server (local dev only) ────────────────────────────────────────────
+// On Vercel, the app is exported as a serverless function — no listen() needed.
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀  Server running at http://localhost:${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;

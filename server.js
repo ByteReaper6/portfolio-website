@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const Message = require('./models/Message');
 const Project = require('./models/Project');
@@ -12,7 +13,12 @@ const PORT = process.env.PORT || 5000;
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.')); // serve your HTML/CSS/JS files from root
+app.use(express.static(path.join(__dirname))); // serve static files
+
+// Serve index.html for the root route explicitly
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // ─── MongoDB Connection ───────────────────────────────────────────────────────
 mongoose

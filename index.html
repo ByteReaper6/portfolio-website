@@ -38,12 +38,23 @@
         <a href="#about">Profile</a>
         <a href="#skills">Stack</a>
         <a href="#projects">Case files</a>
+        <a href="#achievements">Achievements</a>
         <a href="#contact">Contact</a>
       </nav>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav">
+        MENU <span aria-hidden="true">+</span>
+      </button>
       <a class="nav-status" href="https://github.com/Sagarmankar123" target="_blank" rel="noreferrer">
         <span class="status-dot"></span> GITHUB ↗
       </a>
     </header>
+    <nav class="mobile-nav section-shell" id="mobile-nav" aria-label="Mobile navigation">
+      <a href="#about">01 / Profile</a>
+      <a href="#skills">02 / Stack</a>
+      <a href="#projects">03 / Case files</a>
+      <a href="#achievements">04 / Achievements</a>
+      <a href="#contact">05 / Contact</a>
+    </nav>
 
     <main id="top">
       <section class="hero section-shell" aria-labelledby="hero-title">
@@ -113,7 +124,27 @@
           <h2>Thinking in systems,<br /><em>building in detail.</em></h2>
         </div>
         <div class="profile-grid">
+          <figure class="profile-card reveal reveal--delay">
+            <div class="profile-card__frame">
+              <div class="profile-card__media">
+                <img src="assets/myimage2.png" alt="Portrait of Sagar Mankar" loading="lazy" />
+              </div>
+              <span class="profile-card__stamp">LOCATION: INDIA</span>
+              <span class="profile-card__cross" aria-hidden="true">X X</span>
+              <div class="profile-badge">
+                <svg viewBox="0 0 100 100" width="130" height="130">
+                  <path id="circlePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent"/>
+                  <text><textPath href="#circlePath" startOffset="0%">FULL-STACK • SECURITY • ARCHITECT • </textPath></text>
+                  <circle cx="50" cy="50" r="10" fill="none" stroke="#ee4f3f" stroke-width="4" />
+                  <line x1="43" y1="57" x2="57" y2="43" stroke="#ee4f3f" stroke-width="4" />
+                </svg>
+              </div>
+              <div class="profile-flame"></div>
+            </div>
+            <figcaption><span>PROFILE CARD / 02</span><span>BUILD · LEARN · CREATE</span></figcaption>
+          </figure>
           <div class="profile-copy reveal">
+            <p class="profile-copy__kicker">HELLO WORLD,</p>
             <p class="lede">Diploma engineering student in my 3rd year at BKIT Sakoli. I move across frontend, backend, MERN-style builds, tooling, debugging, and security-aware product thinking.</p>
             <p>I bring structure under pressure by breaking problems down, choosing tools, building logic, and stabilising demos. The work is practical: understand the constraint, make the flow hold, then keep pushing until it works.</p>
             <div class="profile-signature"><span class="signature-line"></span><span>SAGAR / ENGINEERING NOTE</span></div>
@@ -173,7 +204,7 @@
         </div>
       </section>
 
-      <section class="section-shell section section--evidence">
+      <section id="achievements" class="section-shell section section--evidence">
         <div class="evidence-intro reveal"><p class="eyebrow"><span>FIELD NOTE 05</span><i></i> EVIDENCE</p><h2>Proof lives in<br /><em>the outcome.</em></h2><p>Selected signals from the work — dates, scale, and results that can be checked against the build history.</p></div>
         <div class="evidence-grid">
           <article class="evidence-card evidence-card--primary reveal"><span class="evidence-card__index">A / 01</span><span class="evidence-card__stamp">12.03.26</span><strong>DIAMOND<br />AWARD</strong><p>1st Place<br />GHRSTU INNOVEX-26<br />Tech Manthan</p></article>

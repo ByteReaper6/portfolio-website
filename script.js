@@ -132,6 +132,21 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
   });
 });
 
+const menuToggle = document.querySelector('.menu-toggle');
+const mobileNav = document.querySelector('#mobile-nav');
+menuToggle?.addEventListener('click', () => {
+  const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+  menuToggle.setAttribute('aria-expanded', String(!isOpen));
+  mobileNav?.classList.toggle('is-open', !isOpen);
+});
+
+mobileNav?.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => {
+    menuToggle?.setAttribute('aria-expanded', 'false');
+    mobileNav.classList.remove('is-open');
+  });
+});
+
 // ─── Contact Form → MongoDB ───────────────────────────────────────────────────
 const contactForm = document.getElementById('contact-form');
 const formStatus = document.getElementById('form-status');

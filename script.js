@@ -47,6 +47,7 @@ const fallbackProjectData = {
     outcome: 'v1 won the Diamond Award and 1st place at GHRSTU INNOVEX-26 Tech Manthan. v2 expanded into a full app with a Smart Leads Dashboard.',
     tags: ['SECURITY AWARENESS', 'PRODUCT FLOWS', 'FULL APP', 'v1 → v2'],
     tech: 'SECURITY / PRODUCT LOGIC',
+    link: 'https://cyber-raksha.vercel.app/',
   },
   leads: {
     index: '02 / 07',
@@ -77,6 +78,7 @@ const fallbackProjectData = {
     outcome: 'A sharper way to frame the MVP-building workflow through an experience-led interface.',
     tags: ['PARALLAX', 'AI CONTEXT MEMORY', 'ARCHITECTURE'],
     tech: 'EXPERIENCE / TECHNICAL DIRECTION',
+    link: 'https://website-genie-landing.vercel.app/',
   },
   jgu: {
     index: '05 / 07',
@@ -152,6 +154,7 @@ const fields = {
   outcome: document.querySelector('#case-file-outcome'),
   tags: document.querySelector('#case-file-tags'),
   tech: document.querySelector('#case-file-tech'),
+  link: document.querySelector('#case-file-link'),
 };
 
 function openProject(key) {
@@ -165,6 +168,14 @@ function openProject(key) {
   fields.outcome.textContent = item.outcome;
   fields.tags.innerHTML = item.tags.map((tag) => `<span>${tag}</span>`).join('');
   fields.tech.textContent = item.tech;
+
+  if (item.link && fields.link) {
+    fields.link.href = item.link;
+    fields.link.style.display = 'inline-flex';
+  } else if (fields.link) {
+    fields.link.style.display = 'none';
+  }
+
   dialog.showModal();
 }
 

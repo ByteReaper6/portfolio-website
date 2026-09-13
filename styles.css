@@ -286,6 +286,26 @@ h1 em { color: var(--red); font-style: normal; }
 .case-file__tags span { color: var(--text); border-color: var(--red-dark); }
 .case-file__footer { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 13px; border-top: 1px solid var(--line); color: var(--dim); font: 9px var(--mono); letter-spacing: .1em; }
 
+.case-file__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 10px 18px;
+  border: 1px solid var(--red);
+  color: var(--text);
+  font: 500 10px var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: background .25s, color .25s, transform .25s;
+}
+.case-file__link span { font-size: 14px; line-height: 0; }
+.case-file__link:hover, .case-file__link:focus-visible {
+  background: var(--red);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s ease, transform .8s ease; }
 .reveal--delay { transition-delay: .12s; }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }

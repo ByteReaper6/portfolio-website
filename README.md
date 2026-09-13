@@ -101,7 +101,7 @@ profitFlow/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Sagarmankar123/portfolio-website.git
+git clone https://github.com/bytereaper6/portfolio-website.git
 cd portfolio-website
 ```
 
@@ -220,7 +220,7 @@ curl -X POST https://portfolio-website-chi-one-42.vercel.app/api/messages \
 
 ## Contact
 
-- **GitHub** → [@Sagarmankar123](https://github.com/Sagarmankar123)
+- **GitHub** → [@bytereaper6](https://github.com/bytereaper6)
 - **Live Portfolio** → [portfolio-website-chi-one-42.vercel.app](https://portfolio-website-chi-one-42.vercel.app/)
 - **Contact Form** → Available directly on the site
 

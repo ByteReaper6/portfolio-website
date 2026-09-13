@@ -25,6 +25,9 @@ button { color: inherit; font: inherit; }
 /* ─── CUSTOM CURSOR ─────────────────────────────────────────────────────── */
 .custom-cursor {
   position: fixed;
+  margin: 0;
+  padding: 0;
+  background: transparent;
   top: 0;
   left: 0;
   width: 36px;
@@ -32,7 +35,7 @@ button { color: inherit; font: inherit; }
   border: 1px solid var(--red);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 99999;
   transform: translate(-50%, -50%);
   transition: width 0.2s, height 0.2s, border-color 0.2s, background 0.2s;
   mix-blend-mode: difference;
@@ -40,6 +43,9 @@ button { color: inherit; font: inherit; }
 
 .custom-cursor-dot {
   position: fixed;
+  margin: 0;
+  padding: 0;
+  border: none;
   top: 0;
   left: 0;
   width: 6px;
@@ -47,7 +53,7 @@ button { color: inherit; font: inherit; }
   background: var(--red);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 99999;
   transform: translate(-50%, -50%);
   transition: width 0.15s, height 0.15s, background 0.15s;
 }

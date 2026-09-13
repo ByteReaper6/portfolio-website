@@ -4,6 +4,14 @@ const cursorDot = document.getElementById('custom-cursor-dot');
 let mouseX = 0, mouseY = 0;
 let cursorX = 0, cursorY = 0;
 
+// Promote to top-layer so it shows over <dialog> modals
+if (cursor && cursor.showPopover) {
+  try { cursor.showPopover(); } catch (e) {}
+}
+if (cursorDot && cursorDot.showPopover) {
+  try { cursorDot.showPopover(); } catch (e) {}
+}
+
 document.addEventListener('mousemove', (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
@@ -99,6 +107,7 @@ const fallbackProjectData = {
     outcome: 'The food-ordering product ecosystem served 1000+ real users.',
     tags: ['FOOD ORDERING', 'LAUNCH WORKFLOWS', 'OPERATIONS', '1000+ USERS'],
     tech: 'PRODUCT ECOSYSTEM / DELIVERY',
+    link: 'https://eatlo.food',
   },
   sankalp: {
     index: '07 / 07',

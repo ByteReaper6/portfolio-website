@@ -1,8 +1,3 @@
 {
-  "version": 2,
-  "rewrites": [
-    { "source": "/api/messages", "destination": "/api/messages" },
-    { "source": "/api/projects", "destination": "/api/projects" },
-    { "source": "/api/health", "destination": "/api/health" }
-  ]
+  "version": 2
 }

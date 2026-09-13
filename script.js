@@ -1,4 +1,5 @@
-const projectData = {
+// ─── Project Data (fallback if API is unavailable) ────────────────────────────
+const fallbackProjectData = {
   cyber: {
     index: '01 / 07',
     kicker: 'SECURITY / PLATFORM',
@@ -71,6 +72,37 @@ const projectData = {
   },
 };
 
+let projectData = { ...fallbackProjectData };
+
+// ─── Fetch projects from API and merge with fallback ──────────────────────────
+async function loadProjects() {
+  try {
+    const response = await fetch('/api/projects');
+    if (!response.ok) throw new Error('API not available');
+    const projects = await response.json();
+
+    if (projects.length > 0) {
+      const keys = Object.keys(fallbackProjectData);
+      projects.forEach((proj, i) => {
+        const key = keys[i] || `proj-${i}`;
+        projectData[key] = {
+          index: `${String(i + 1).padStart(2, '0')} / ${String(projects.length).padStart(2, '0')}`,
+          kicker: proj.kicker || fallbackProjectData[key]?.kicker || '',
+          title: proj.title || fallbackProjectData[key]?.title || '',
+          summary: proj.description || fallbackProjectData[key]?.summary || '',
+          contribution: proj.description || fallbackProjectData[key]?.contribution || '',
+          outcome: proj.outcome || fallbackProjectData[key]?.outcome || '',
+          tags: proj.tags?.length ? proj.tags : fallbackProjectData[key]?.tags || [],
+          tech: fallbackProjectData[key]?.tech || 'FULL STACK',
+        };
+      });
+    }
+  } catch {
+    // API unavailable — silently use fallback data
+  }
+}
+
+// ─── Dialog / Modal ──────────────────────────────────────────────────────────
 const dialog = document.querySelector('#case-file');
 const closeButton = document.querySelector('.case-file__close');
 const fields = {
@@ -107,12 +139,14 @@ dialog?.addEventListener('click', (event) => {
   if (event.target === dialog) dialog.close();
 });
 
+// ─── Scroll Reveal ───────────────────────────────────────────────────────────
 const observer = new IntersectionObserver(
   (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('is-visible')),
   { threshold: 0.12 },
 );
 document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
 
+// ─── Parallax Wall ───────────────────────────────────────────────────────────
 const wall = document.querySelector('.site-wall');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 if (wall && !reduceMotion.matches) {
@@ -123,6 +157,7 @@ if (wall && !reduceMotion.matches) {
   }, { passive: true });
 }
 
+// ─── Smooth Scroll ───────────────────────────────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener('click', (event) => {
     const target = document.querySelector(link.getAttribute('href'));
@@ -132,6 +167,7 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
   });
 });
 
+// ─── Mobile Menu ─────────────────────────────────────────────────────────────
 const menuToggle = document.querySelector('.menu-toggle');
 const mobileNav = document.querySelector('#mobile-nav');
 menuToggle?.addEventListener('click', () => {
@@ -146,6 +182,118 @@ mobileNav?.querySelectorAll('a').forEach((link) => {
     mobileNav.classList.remove('is-open');
   });
 });
+
+// ─── Terminal Status Animation ───────────────────────────────────────────────
+const terminalPanel = document.querySelector('[data-terminal]');
+const terminalOutput = terminalPanel?.querySelector('[data-terminal-output]');
+const terminalLines = [
+  'booting portfolio...',
+  'loading identity...',
+  'loading skills...',
+  'loading projects...',
+  'loading achievements...',
+  'establishing connection...',
+  'system ready',
+  "let's build something useful.",
+];
+let terminalStarted = false;
+let terminalTimer = null;
+
+function createTerminalLine(text, active = false) {
+  const line = document.createElement('div');
+  line.className = `terminal-line${active ? ' terminal-line--active' : ''}`;
+  const prompt = document.createElement('span');
+  prompt.className = 'terminal-line__prompt';
+  prompt.textContent = '>';
+  const message = document.createElement('span');
+  message.textContent = text;
+  line.append(prompt, message);
+  if (active) {
+    const cursor = document.createElement('span');
+    cursor.className = 'terminal-line__cursor';
+    cursor.textContent = '▋';
+    line.append(cursor);
+  }
+  return { line, message };
+}
+
+function showFinalTerminal() {
+  if (!terminalOutput) return;
+  const renderedLines = terminalLines.map((text, index) => createTerminalLine(text, index === terminalLines.length - 1).line);
+  terminalOutput.replaceChildren(...renderedLines);
+  terminalPanel?.classList.add('terminal-panel--complete');
+}
+
+function randomTypingDelay() {
+  return 35 + Math.floor(Math.random() * 26);
+}
+
+function randomLinePause() {
+  return 250 + Math.floor(Math.random() * 251);
+}
+
+function startTerminal() {
+  if (terminalStarted || !terminalPanel || !terminalOutput) return;
+  terminalStarted = true;
+  terminalPanel.classList.add('terminal-panel--visible');
+
+  if (reduceMotion.matches) {
+    showFinalTerminal();
+    return;
+  }
+
+  terminalOutput.replaceChildren();
+  let lineIndex = 0;
+
+  const typeNextLine = () => {
+    if (lineIndex >= terminalLines.length) return;
+    const currentLine = createTerminalLine(terminalLines[lineIndex], true);
+    const characters = Array.from(terminalLines[lineIndex]);
+    let characterIndex = 0;
+    terminalOutput.appendChild(currentLine.line);
+
+    const typeCharacter = () => {
+      currentLine.message.textContent = characters.slice(0, characterIndex + 1).join('');
+      characterIndex += 1;
+
+      if (characterIndex < characters.length) {
+        terminalTimer = window.setTimeout(typeCharacter, randomTypingDelay());
+        return;
+      }
+
+      if (lineIndex === terminalLines.length - 1) {
+        terminalPanel.classList.add('terminal-panel--complete');
+        return;
+      }
+
+      currentLine.line.classList.remove('terminal-line--active');
+      currentLine.line.classList.add('terminal-line--complete');
+      currentLine.line.querySelector('.terminal-line__cursor')?.remove();
+      lineIndex += 1;
+      terminalTimer = window.setTimeout(typeNextLine, randomLinePause());
+    };
+
+    typeCharacter();
+  };
+
+  typeNextLine();
+}
+
+if (terminalPanel) {
+  terminalPanel.classList.add('terminal-panel--pending');
+  window.requestAnimationFrame(() => terminalPanel.classList.add('terminal-panel--visible'));
+
+  if ('IntersectionObserver' in window) {
+    const terminalObserver = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting) return;
+      terminalObserver.disconnect();
+      startTerminal();
+    }, { threshold: 0.35 });
+    terminalObserver.observe(terminalPanel);
+  } else {
+    startTerminal();
+  }
+}
 
 // ─── Contact Form → MongoDB ───────────────────────────────────────────────────
 const contactForm = document.getElementById('contact-form');
@@ -165,9 +313,14 @@ if (contactForm) {
       return;
     }
 
-    // Loading state
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+      setFormStatus('error', 'Please enter a valid email address.');
+      return;
+    }
+
     formSubmitBtn.disabled = true;
-    formSubmitBtn.textContent = 'Sending…';
+    formSubmitBtn.textContent = 'Sending...';
     setFormStatus('', '');
 
     try {
@@ -180,17 +333,16 @@ if (contactForm) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setFormStatus('success', '✓ Message received. Signal delivered.');
+        setFormStatus('success', 'Message received. Signal delivered.');
         contactForm.reset();
       } else {
         setFormStatus('error', data.error || 'Something went wrong. Please try again.');
       }
-    } catch (err) {
+    } catch {
       setFormStatus('error', 'Could not reach the server. Check your connection.');
-      console.error('Form submission error:', err);
     } finally {
       formSubmitBtn.disabled = false;
-      formSubmitBtn.innerHTML = 'Send signal <span>↗</span>';
+      formSubmitBtn.innerHTML = 'Send signal <span>&#x2197;</span>';
     }
   });
 }
@@ -201,3 +353,6 @@ function setFormStatus(type, message) {
   formStatus.className = 'form-status';
   if (type) formStatus.classList.add(`form-status--${type}`);
 }
+
+// ─── Init: Load projects from API ────────────────────────────────────────────
+loadProjects();

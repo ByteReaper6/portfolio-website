@@ -14,6 +14,18 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    const adminToken = process.env.ADMIN_TOKEN;
+
+    if (!adminToken) {
+      return res.status(503).json({ error: 'Admin access not configured.' });
+    }
+
+    if (!token || token !== adminToken) {
+      return res.status(401).json({ error: 'Unauthorized. Valid admin token required.' });
+    }
+
     try {
       const project = new Project(req.body);
       await project.save();

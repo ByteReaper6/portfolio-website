@@ -15,6 +15,14 @@
     />
     <meta property="og:type" content="website" />
     <title>Sagar Mankar — Full-Stack Architect</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' rx='12' fill='%230b0b0c'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-family='monospace' font-size='48' font-weight='bold' fill='%23ee4f3f'%3ESM%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Bungee+Shade&family=Bungee&family=Space+Grotesk:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <meta property="og:image" content="https://portfolio-website-chi-one-42.vercel.app/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sagar Mankar — Full-Stack Architect" />
+    <meta name="twitter:description" content="Developer portfolio, engineering notebook, and case files by Sagar Mankar." />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -62,16 +70,32 @@
           <p class="eyebrow"><span>FIELD NOTE 01</span><i></i> OPEN TO BUILD</p>
           <h1 id="hero-title">Build the logic.<br /><em>Break the problem.</em></h1>
           <p class="hero__lead">
-            I’m Sagar Mankar — a Full-Stack Architect, Security &amp; Mobile App Developer, and Diploma Engineering student building useful systems under real constraints.
+            I'm Sagar Mankar — a Full-Stack Architect, Security &amp; Mobile App Developer, and Diploma Engineering student building useful systems under real constraints.
           </p>
           <div class="hero__actions">
-            <a class="button button--solid" href="#projects">Explore case files <span>↘</span></a>
-            <a class="button button--ghost" href="#contact">Start a conversation <span>↗</span></a>
+            <a class="button button--solid" href="#projects">Explore case files <span>&#x2198;</span></a>
+            <a class="button button--ghost" href="#contact">Start a conversation <span>&#x2197;</span></a>
           </div>
           <div class="hero__meta" aria-label="Professional metadata">
             <span>BKIT SAKOLI</span>
-            <span>POLYTECHNIC · 3RD YEAR</span>
+            <span>POLYTECHNIC &middot; 3RD YEAR</span>
             <span>FULL-STACK / SECURITY / MOBILE</span>
+          </div>
+          <div class="terminal-panel" data-terminal role="group" aria-label="Portfolio system status. System ready. Let's build something useful.">
+            <div class="terminal-panel__header">
+              <div class="terminal-panel__identity"><span class="terminal-panel__dots" aria-hidden="true"><i></i><i></i><i></i></span><span>SAGAR@PORTFOLIO</span></div>
+              <span class="terminal-panel__status"><i aria-hidden="true"></i> SYSTEM ONLINE</span>
+            </div>
+            <div class="terminal-panel__body" data-terminal-output aria-hidden="true">
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>booting portfolio...</span></div>
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>loading identity...</span></div>
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>loading skills...</span></div>
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>loading projects...</span></div>
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>loading achievements...</span></div>
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>establishing connection...</span></div>
+              <div class="terminal-line"><span class="terminal-line__prompt">&gt;</span><span>system ready</span></div>
+              <div class="terminal-line terminal-line--active"><span class="terminal-line__prompt">&gt;</span><span>let's build something useful.</span><span class="terminal-line__cursor">▋</span></div>
+            </div>
           </div>
         </div>
 
@@ -80,7 +104,7 @@
           <div class="diagram__canvas">
             <span class="scribble scribble--one">ship it?</span>
             <span class="scribble scribble--two">watch the edge</span>
-            <span class="scribble scribble--three">↓ trace ↓</span>
+            <span class="scribble scribble--three">&darr; trace &darr;</span>
             <svg viewBox="0 0 520 430" role="img" aria-label="Abstract system architecture diagram">
               <defs>
                 <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -93,24 +117,26 @@
               <path class="diagram-line" d="M156 294 C186 335 207 343 252 345" marker-end="url(#arrow)" />
               <path class="diagram-line diagram-line--red" d="M285 345 C340 339 357 327 382 293" marker-end="url(#arrow)" />
               <rect class="diagram-node diagram-node--light" x="26" y="72" width="112" height="62" rx="2" />
-              <text x="43" y="99">USER FLOW</text><text class="diagram-node__sub" x="43" y="118">intent / access</text>
+              <text class="diagram-node__label" x="43" y="99" fill="#0b0b0c">USER FLOW</text><text class="diagram-node__sub" x="43" y="118" fill="#484743">intent / access</text>
               <rect class="diagram-node" x="184" y="72" width="148" height="62" rx="2" />
-              <text x="204" y="99">FRONTEND</text><text class="diagram-node__sub" x="204" y="118">react / mobile</text>
+              <text class="diagram-node__label" x="204" y="99" fill="#f4f2ec">FRONTEND</text><text class="diagram-node__sub" x="204" y="118" fill="#999792">react / mobile</text>
               <rect class="diagram-node" x="390" y="133" width="104" height="62" rx="2" />
-              <text x="408" y="160">SECURITY</text><text class="diagram-node__sub" x="408" y="179">risk / trust</text>
+              <text class="diagram-node__label" x="408" y="160" fill="#f4f2ec">SECURITY</text><text class="diagram-node__sub" x="408" y="179" fill="#999792">risk / trust</text>
               <rect class="diagram-node diagram-node--accent" x="197" y="257" width="139" height="62" rx="2" />
-              <text x="219" y="284">API LOGIC</text><text class="diagram-node__sub" x="219" y="303">node / express</text>
+              <text class="diagram-node__label" x="219" y="284" fill="#f4f2ec">API LOGIC</text><text class="diagram-node__sub" x="219" y="303" fill="#999792">node / express</text>
               <rect class="diagram-node" x="80" y="345" width="132" height="52" rx="2" />
-              <text x="101" y="376">MONGODB</text>
+              <text class="diagram-node__label" x="101" y="376" fill="#f4f2ec">MONGODB</text>
               <rect class="diagram-node" x="341" y="345" width="122" height="52" rx="2" />
-              <text x="363" y="376">DEBUG LOOP</text>
+              <text class="diagram-node__label" x="363" y="376" fill="#f4f2ec">DEBUG LOOP</text>
               <circle class="diagram-ring" cx="266" cy="180" r="28" />
-              <text class="diagram-ring__text" x="251" y="184">v1 → v2</text>
+              <text class="diagram-ring__text" x="251" y="184">v1 &rarr; v2</text>
             </svg>
           </div>
           <div class="diagram__footer"><span>INPUT: IDEA</span><span>OUTPUT: WORKING PRODUCT</span></div>
         </div>
       </section>
+
+
 
       <section class="ticker" aria-label="Focus areas">
         <div class="ticker__track">
@@ -241,8 +267,10 @@
                 name="name"
                 placeholder="Your name"
                 autocomplete="name"
+                aria-describedby="name-error"
                 required
               />
+              <span class="form-error" id="name-error" role="alert" aria-live="polite"></span>
             </div>
             <div class="form-group">
               <label class="form-label" for="contact-email">EMAIL</label>
@@ -253,8 +281,10 @@
                 name="email"
                 placeholder="your@email.com"
                 autocomplete="email"
+                aria-describedby="email-error"
                 required
               />
+              <span class="form-error" id="email-error" role="alert" aria-live="polite"></span>
             </div>
             <div class="form-group">
               <label class="form-label" for="contact-message">MESSAGE</label>
@@ -264,8 +294,10 @@
                 name="message"
                 placeholder="Tell me what you're building..."
                 rows="5"
+                aria-describedby="message-error"
                 required
               ></textarea>
+              <span class="form-error" id="message-error" role="alert" aria-live="polite"></span>
             </div>
             <div class="form-footer">
               <button class="button button--solid" type="submit" id="form-submit-btn">

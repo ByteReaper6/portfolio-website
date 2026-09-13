@@ -1,3 +1,41 @@
+// ─── Custom Cursor ───────────────────────────────────────────────────────────
+const cursor = document.getElementById('custom-cursor');
+const cursorDot = document.getElementById('custom-cursor-dot');
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (cursorDot) {
+    cursorDot.style.left = mouseX + 'px';
+    cursorDot.style.top = mouseY + 'px';
+  }
+});
+
+function animateCursor() {
+  cursorX += (mouseX - cursorX) * 0.15;
+  cursorY += (mouseY - cursorY) * 0.15;
+  if (cursor) {
+    cursor.style.left = cursorX + 'px';
+    cursor.style.top = cursorY + 'px';
+  }
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+const hoverTargets = 'a, button, [data-project], input, textarea, .project-card, .skill-module';
+document.querySelectorAll(hoverTargets).forEach((el) => {
+  el.addEventListener('mouseenter', () => {
+    cursor?.classList.add('hover');
+    cursorDot?.classList.add('hover');
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor?.classList.remove('hover');
+    cursorDot?.classList.remove('hover');
+  });
+});
+
 // ─── Project Data (fallback if API is unavailable) ────────────────────────────
 const fallbackProjectData = {
   cyber: {
@@ -146,15 +184,78 @@ const observer = new IntersectionObserver(
 );
 document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
 
-// ─── Parallax Wall ───────────────────────────────────────────────────────────
+// ─── Parallax Engine ─────────────────────────────────────────────────────────
 const wall = document.querySelector('.site-wall');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-if (wall && !reduceMotion.matches) {
-  window.addEventListener('pointermove', (event) => {
-    const x = (event.clientX / window.innerWidth - 0.5) * 8;
-    const y = (event.clientY / window.innerHeight - 0.5) * 8;
-    wall.style.transform = `translate(${x}px, ${y}px)`;
+
+if (!reduceMotion.matches) {
+  // Mouse-follow for wall marks
+  if (wall) {
+    window.addEventListener('pointermove', (event) => {
+      const x = (event.clientX / window.innerWidth - 0.5) * 8;
+      const y = (event.clientY / window.innerHeight - 0.5) * 8;
+      wall.style.transform = `translate(${x}px, ${y}px)`;
+    }, { passive: true });
+  }
+
+  // Scroll-based parallax for creatures + flowers + elements
+  const parallaxCreatures = document.querySelectorAll('.parallax-creature');
+  const parallaxFlowers = document.querySelectorAll('.parallax-flower');
+  const parallaxElements = document.querySelectorAll('[data-parallax-speed]');
+  const heroDigram = document.querySelector('.hero__diagram');
+
+  let ticking = false;
+  function updateParallax() {
+    const scrollY = window.scrollY;
+
+    // Creatures: float vertically at different speeds
+    parallaxCreatures.forEach((creature) => {
+      const speed = parseFloat(creature.dataset.parallaxSpeed) || 0.1;
+      const baseRotation = creature.classList.contains('parallax-creature--hero') ? 15
+        : creature.classList.contains('parallax-creature--mid') ? -25
+        : 40;
+      const flipX = creature.classList.contains('parallax-creature--mid') ? ' scaleX(-1)' : '';
+      const yOffset = scrollY * speed;
+      creature.style.transform = `translateY(${yOffset}px) rotate(${baseRotation + scrollY * 0.01}deg)${flipX}`;
+    });
+
+    // Flowers: float at different speeds
+    parallaxFlowers.forEach((flower) => {
+      const speed = parseFloat(flower.dataset.parallaxSpeed) || 0.08;
+      const baseRotation = flower.classList.contains('parallax-flower--top') ? -8 : 5;
+      const flipX = flower.classList.contains('parallax-flower--top') ? ' scaleX(-1)' : '';
+      const yOffset = scrollY * speed;
+      flower.style.transform = `translateY(${yOffset}px) rotate(${baseRotation + scrollY * 0.005}deg)${flipX}`;
+    });
+
+    // Content elements with data-parallax-speed
+    parallaxElements.forEach((el) => {
+      const speed = parseFloat(el.dataset.parallaxSpeed) || 0.05;
+      const rect = el.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const offset = (center - window.innerHeight / 2) * speed;
+      el.style.transform = `translateY(${offset}px)`;
+    });
+
+    // Hero diagram subtle tilt on scroll
+    if (heroDigram) {
+      const diagRotate = 1.3 + scrollY * 0.003;
+      const diagY = scrollY * -0.06;
+      heroDigram.style.transform = `rotate(${diagRotate}deg) translateY(${diagY}px)`;
+    }
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateParallax);
+      ticking = true;
+    }
   }, { passive: true });
+
+  // Initial call
+  updateParallax();
 }
 
 // ─── Smooth Scroll ───────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+const https = require('https');
 const connectDB = require('../lib/db');
 const Message = require('../models/Message');
 
@@ -20,7 +21,63 @@ function isRateLimited(ip) {
   return false;
 }
 
+// ─── Telegram Notification ────────────────────────────────────────────────────
+function sendTelegramNotification(name, email, message) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return Promise.resolve();
+
+  const text =
+    `📬 *New Portfolio Message*\n\n` +
+    `👤 *Name:* ${name}\n` +
+    `📧 *Email:* ${email}\n` +
+    `💬 *Message:*\n${message}`;
+
+  const body = JSON.stringify({
+    chat_id: chatId,
+    text,
+    parse_mode: 'Markdown',
+  });
+
+  const options = {
+    hostname: 'api.telegram.org',
+    path: `/bot${token}/sendMessage`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body),
+    },
+  };
+
+  return new Promise((resolve) => {
+    const req = https.request(options, (res) => {
+      if (res.statusCode !== 200) {
+        console.warn(`⚠️  Telegram API returned status ${res.statusCode}`);
+      }
+      res.resume(); // drain the response
+      resolve();
+    });
+
+    req.on('error', (err) => {
+      console.error('⚠️  Telegram notification failed:', err.message);
+      resolve(); // never reject — don't break the user flow
+    });
+
+    req.write(body);
+    req.end();
+  });
+}
+
 module.exports = async (req, res) => {
+  // ── CORS headers (required for Vercel serverless) ──────────────────────────
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   await connectDB();
 
   if (req.method === 'POST') {
@@ -46,6 +103,10 @@ module.exports = async (req, res) => {
 
       const newMessage = new Message({ name, email, message });
       await newMessage.save();
+
+      // Await Telegram notification (Vercel kills the function otherwise)
+      await sendTelegramNotification(name, email, message);
+
       return res.status(201).json({ success: true, message: 'Message received. Thanks!' });
     } catch (err) {
       if (err.name === 'ValidationError') {
@@ -80,3 +141,4 @@ module.exports = async (req, res) => {
   res.setHeader('Allow', ['GET', 'POST']);
   res.status(405).json({ error: `Method ${req.method} not allowed` });
 };
+

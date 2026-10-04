@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  # ── MongoDB (replaces Atlas for local dev) ──────────────────────────────────
+  mongo:
+    image: mongo:7-jammy
+    container_name: portfolio-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"          # expose locally if you want Compass access
+    environment:
+      MONGO_INITDB_DATABASE: portfolio
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Portfolio Node/Express app ───────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-app
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      SERVE: "true"
+      # Points at the mongo service by its container name
+      MONGODB_URI: mongodb://mongo:27017/portfolio
+      # Override in a .env file or pass via shell:  ADMIN_TOKEN=xxx docker compose up
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-changeme-set-a-real-token}
+      # Telegram bot integration — forwards contact form messages to your Telegram
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mongo_data:
+    name: portfolio_mongo_data

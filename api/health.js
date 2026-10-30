@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
       db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     });
   } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message });
+    console.error('Health check DB error:', err.message);
+    res.status(503).json({ status: 'degraded', db: 'unreachable' });
   }
 };

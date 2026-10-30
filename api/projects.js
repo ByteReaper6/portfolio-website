@@ -2,7 +2,14 @@ const connectDB = require('../lib/db');
 const Project = require('../models/Project');
 
 module.exports = async (req, res) => {
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (err) {
+    // Previously this threw outside any try/catch and crashed the function
+    // (FUNCTION_INVOCATION_FAILED). Return JSON so the frontend falls back cleanly.
+    console.error('DB connection failed:', err.message);
+    return res.status(503).json({ error: 'Database unavailable.' });
+  }
 
   if (req.method === 'GET') {
     try {
@@ -36,5 +43,5 @@ module.exports = async (req, res) => {
   }
 
   res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).json({ error: `Method ${req.method} not allowed` });
+  return res.status(405).json({ error: `Method ${req.method} not allowed` });
 };

@@ -1,6 +1,6 @@
-const https = require('https');
 const connectDB = require('../lib/db');
 const Message = require('../models/Message');
+const { sendTelegramNotification } = require('../lib/telegram');
 
 const submissions = new Map();
 
@@ -21,53 +21,6 @@ function isRateLimited(ip) {
   return false;
 }
 
-// ─── Telegram Notification ────────────────────────────────────────────────────
-function sendTelegramNotification(name, email, message) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return Promise.resolve();
-
-  const text =
-    `📬 *New Portfolio Message*\n\n` +
-    `👤 *Name:* ${name}\n` +
-    `📧 *Email:* ${email}\n` +
-    `💬 *Message:*\n${message}`;
-
-  const body = JSON.stringify({
-    chat_id: chatId,
-    text,
-    parse_mode: 'Markdown',
-  });
-
-  const options = {
-    hostname: 'api.telegram.org',
-    path: `/bot${token}/sendMessage`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-    },
-  };
-
-  return new Promise((resolve) => {
-    const req = https.request(options, (res) => {
-      if (res.statusCode !== 200) {
-        console.warn(`⚠️  Telegram API returned status ${res.statusCode}`);
-      }
-      res.resume(); // drain the response
-      resolve();
-    });
-
-    req.on('error', (err) => {
-      console.error('⚠️  Telegram notification failed:', err.message);
-      resolve(); // never reject — don't break the user flow
-    });
-
-    req.write(body);
-    req.end();
-  });
-}
-
 module.exports = async (req, res) => {
   // ── CORS headers (required for Vercel serverless) ──────────────────────────
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -78,16 +31,19 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  await connectDB();
-
   if (req.method === 'POST') {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const forwarded = req.headers['x-forwarded-for'];
+    const ip = (forwarded ? String(forwarded).split(',')[0].trim() : req.socket?.remoteAddress) || 'unknown';
     if (isRateLimited(ip)) {
       return res.status(429).json({ error: 'Too many messages sent. Please try again later.' });
     }
 
     try {
-      const { name, email, message } = req.body;
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+      const { name, email, message } = body;
+      if (typeof name !== 'string' || typeof email !== 'string' || typeof message !== 'string') {
+        return res.status(400).json({ error: 'All fields are required.' });
+      }
       if (!name || !email || !message) {
         return res.status(400).json({ error: 'All fields are required.' });
       }
@@ -101,11 +57,27 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Input exceeds allowed length.' });
       }
 
+      // Validate against the schema before trying to store or forward anything
       const newMessage = new Message({ name, email, message });
-      await newMessage.save();
+      await newMessage.validate();
+
+      // Save to MongoDB, but don't let a database outage lose the message:
+      // if the DB is down, the Telegram notification still delivers it.
+      let saved = false;
+      try {
+        await connectDB();
+        await newMessage.save();
+        saved = true;
+      } catch (dbErr) {
+        console.error('Could not save message to MongoDB:', dbErr.message);
+      }
 
       // Await Telegram notification (Vercel kills the function otherwise)
-      await sendTelegramNotification(name, email, message);
+      const notified = await sendTelegramNotification(name, email, message);
+
+      if (!saved && !notified) {
+        return res.status(503).json({ error: 'Message could not be delivered right now. Please email me instead.' });
+      }
 
       return res.status(201).json({ success: true, message: 'Message received. Thanks!' });
     } catch (err) {
@@ -113,6 +85,10 @@ module.exports = async (req, res) => {
         const errors = Object.values(err.errors).map((e) => e.message);
         return res.status(400).json({ error: errors.join(', ') });
       }
+      if (err instanceof SyntaxError) {
+        return res.status(400).json({ error: 'Invalid request body.' });
+      }
+      console.error('POST /api/messages error:', err);
       return res.status(500).json({ error: 'Server error.' });
     }
   }
@@ -131,6 +107,7 @@ module.exports = async (req, res) => {
     }
 
     try {
+      await connectDB();
       const messages = await Message.find().sort({ createdAt: -1 });
       return res.json(messages);
     } catch (err) {
@@ -139,6 +116,6 @@ module.exports = async (req, res) => {
   }
 
   res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).json({ error: `Method ${req.method} not allowed` });
+  return res.status(405).json({ error: `Method ${req.method} not allowed` });
 };
 

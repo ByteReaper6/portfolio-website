@@ -130,7 +130,7 @@ async function loadProjects() {
     if (!response.ok) throw new Error('API not available');
     const projects = await response.json();
 
-    if (projects.length > 0) {
+    if (Array.isArray(projects) && projects.length > 0) {
       const keys = Object.keys(fallbackProjectData);
       projects.forEach((proj, i) => {
         const key = keys[i] || `proj-${i}`;
@@ -139,10 +139,11 @@ async function loadProjects() {
           kicker: proj.kicker || fallbackProjectData[key]?.kicker || '',
           title: proj.title || fallbackProjectData[key]?.title || '',
           summary: proj.description || fallbackProjectData[key]?.summary || '',
-          contribution: proj.description || fallbackProjectData[key]?.contribution || '',
+          contribution: fallbackProjectData[key]?.contribution || proj.description || '',
           outcome: proj.outcome || fallbackProjectData[key]?.outcome || '',
           tags: proj.tags?.length ? proj.tags : fallbackProjectData[key]?.tags || [],
           tech: fallbackProjectData[key]?.tech || 'FULL STACK',
+          link: proj.link || fallbackProjectData[key]?.link || '',
         };
       });
     }
@@ -170,12 +171,20 @@ function openProject(key) {
   const item = projectData[key];
   if (!item || !dialog) return;
   fields.index.textContent = item.index;
-  fields.kicker.innerHTML = `<span>CASE FILE</span><i></i> ${item.kicker}`;
+  const kickerLabel = document.createElement('span');
+  kickerLabel.textContent = 'CASE FILE';
+  fields.kicker.replaceChildren(kickerLabel, document.createElement('i'), document.createTextNode(` ${item.kicker}`));
   fields.title.textContent = item.title;
   fields.summary.textContent = item.summary;
   fields.contribution.textContent = item.contribution;
   fields.outcome.textContent = item.outcome;
-  fields.tags.innerHTML = item.tags.map((tag) => `<span>${tag}</span>`).join('');
+  fields.tags.replaceChildren(
+    ...item.tags.map((tag) => {
+      const span = document.createElement('span');
+      span.textContent = tag;
+      return span;
+    }),
+  );
   fields.tech.textContent = item.tech;
 
   if (item.link && fields.link) {
@@ -451,7 +460,14 @@ if (contactForm) {
         body: JSON.stringify({ name, email, message }),
       });
 
-      const data = await response.json();
+      // The server can answer with a non-JSON error page (e.g. a crashed function),
+      // so don't let response.json() throw and show a misleading "connection" error.
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       if (response.ok && data.success) {
         setFormStatus('success', 'Message received. Signal delivered.');

@@ -3,50 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const https = require('https');
 const rateLimit = require('express-rate-limit');
 
-// ─── Telegram Notification ────────────────────────────────────────────────────
-function sendTelegramNotification(name, email, message) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return; // silently skip if not configured
-
-  const text =
-    `📬 *New Portfolio Message*\n\n` +
-    `👤 *Name:* ${name}\n` +
-    `📧 *Email:* ${email}\n` +
-    `💬 *Message:*\n${message}`;
-
-  const body = JSON.stringify({
-    chat_id: chatId,
-    text,
-    parse_mode: 'Markdown',
-  });
-
-  const options = {
-    hostname: 'api.telegram.org',
-    path: `/bot${token}/sendMessage`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body),
-    },
-  };
-
-  const req = https.request(options, (res) => {
-    if (res.statusCode !== 200) {
-      console.warn(`⚠️  Telegram API returned status ${res.statusCode}`);
-    }
-  });
-
-  req.on('error', (err) => {
-    console.error('⚠️  Telegram notification failed:', err.message);
-  });
-
-  req.write(body);
-  req.end();
-}
+const { sendTelegramNotification } = require('./lib/telegram');
 
 const Message = require('./models/Message');
 const Project = require('./models/Project');
@@ -84,13 +43,13 @@ app.get('/', (req, res) => {
 
 // ─── MongoDB Connection ───────────────────────────────────────────────────────
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
   .then(() => {
     console.log('✅  MongoDB connected successfully');
   })
   .catch((err) => {
+    // Keep serving the static site and contact form (Telegram) even if the DB is down
     console.error('❌  MongoDB connection error:', err.message);
-    process.exit(1); // stop the server if DB fails to connect
   });
 
 // ─── API Routes: Messages (Contact Form) ─────────────────────────────────────
@@ -114,10 +73,20 @@ app.post('/api/messages', messageLimiter, async (req, res) => {
     }
 
     const newMessage = new Message({ name, email, message });
-    await newMessage.save();
+    await newMessage.validate();
 
-    // Fire-and-forget Telegram notification (never blocks the response)
-    sendTelegramNotification(name, email, message);
+    let saved = false;
+    try {
+      await newMessage.save();
+      saved = true;
+    } catch (dbErr) {
+      console.error('Could not save message to MongoDB:', dbErr.message);
+    }
+
+    const notified = await sendTelegramNotification(name, email, message);
+    if (!saved && !notified) {
+      return res.status(503).json({ error: 'Message could not be delivered right now. Please email me instead.' });
+    }
 
     res.status(201).json({ success: true, message: 'Message received. Thanks!' });
   } catch (err) {
